@@ -40,5 +40,39 @@ jobs:
           cd /home/prasad/vihsal-api/api-test/
           ./deploy.sh
           ENDSSH
+    
+
+
+variables:
+    EMAIL_RECIPIENTS: "prasad.athani@tekditechnologies.com"
+
+before_script:
+     - apt-get update -qy
+     - apt-get install -y python3-pip
+     - pip3 install sendmail
+
+  build:
+      stage: build
+      script:
+      - echo "Building the project..."
+      after_script:
+      - if [ "$CI_JOB_STATUS" == "success" ]; then echo "Build successful!" | sendmail $EMAIL_RECIPIENTS; fi
+      - if [ "$CI_JOB_STATUS" == "failed" ]; then echo "Build failed!" | sendmail $EMAIL_RECIPIENTS; fi
+
+test:
+    stage: test
+    script:
+    - echo "Running tests..."
+    after_script:
+    - if [ "$CI_JOB_STATUS" == "success" ]; then echo "Tests successful!" | sendmail $EMAIL_RECIPIENTS; fi
+    - if [ "$CI_JOB_STATUS" == "failed" ]; then echo "Tests failed!" | sendmail $EMAIL_RECIPIENTS; fi
+
+deploy:
+    stage: deploy
+    script:
+    - echo "Deploying the project..."
+    after_script:
+    - if [ "$CI_JOB_STATUS" == "success" ]; then echo "Deployment successful!" | sendmail $EMAIL_RECIPIENTS; fi
+    - if [ "$CI_JOB_STATUS" == "failed" ]; then echo "Deployment failed!" | sendmail $EMAIL_RECIPIENTS; fi
                     
      
