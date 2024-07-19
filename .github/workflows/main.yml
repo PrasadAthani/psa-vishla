@@ -1,4 +1,4 @@
-#It is deploying on server 3.6.249.151 For Dev Environment only please note. 
+ ##It is deploying on server 3.6.249.151 For Dev Environment only please note. 
 name: Deploy to DEV
 on: 
   push:  
@@ -51,11 +51,11 @@ before_script:
      - apt-get install -y python3-pip
      - pip3 install sendmail
 
-  build:
-      stage: build
-      script:
+    build:
+    stage: build
+    script:
       - echo "Building the project..."
-      after_script:
+    after_script:
       - if [ "$CI_JOB_STATUS" == "success" ]; then echo "Build successful!" | sendmail $EMAIL_RECIPIENTS; fi
       - if [ "$CI_JOB_STATUS" == "failed" ]; then echo "Build failed!" | sendmail $EMAIL_RECIPIENTS; fi
 
