@@ -1,63 +1,9 @@
-name: Deploy to DEV
-on: 
-  push:  
-    branches:
-      - main
-jobs: 
-  build:
-    name: Generate Build and Deploy to DEV
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code 
-        uses: actions/checkout@v3
+name: Rollback Image from ECR
 
-      - name: Setup Node Env
-        uses: actions/setup-node@v3
-        with:
-          node-version: 21.1.0
-          
-      - name: Deploy to Server 1
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST_DNS }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-       
-
-      - name: Set up SSH key
-        run: |
-         mkdir -p ~/.ssh
-         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-         chmod 600 ~/.ssh/id_rsa
-         # Add the SSH key to the known_hosts file (replace hostname with your actual hostname)
-         ssh-keyscan -H ${{ secrets.HOST_DNS }} >> ~/.ssh/known_hosts
-         sudo apt-get install sshpass
-
-      - name: Deploy to server
-        run: |
-          sshpass -p '${{ secrets.EC2_SSH_KEY }}' ssh -v -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }} <<'ENDSSH'
-          cd /home/prasad/vihsal-api/api-test/
-          ./deploy.sh
-          ENDSSH
-
-      - name: Deploy to server
-        run: |
-         - variables:
-         EMAIL_RECIPIENTS: "prasad.athani@tekditechnologies.com"
-
-      - name: Deploy to server
-        run: |
-         - apt-get update -qy
-         - apt-get install -y python3-pip
-         - pip3 install sendmail
-
-
-      - name: Deploy to server
-        run: |
-         - if [ "$CI_JOB_STATUS" == "success" ]; then echo "Build successful!" | sendmail $EMAIL_RECIPIENTS; fi
-         - if [ "$CI_JOB_STATUS" == "failed" ]; then echo "Build failed!" | sendmail $EMAIL_RECIPIENTS; fi
-
-
-
-                    
-     
+on:
+  workflow_dispatch:
+    inputs:
+      timestamp:
+        description: 'Enter timestamp (YYYYMMDD-HHMM)'
+        required: true
+        default: '20240401-1200'
