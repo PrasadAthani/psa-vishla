@@ -7,3 +7,17 @@ on:
         description: 'Enter timestamp (YYYYMMDD-HHMM)'
         required: true
         default: '20240401-1200'
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: AWS Login
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+      - name: Pull Image from ECR
+        run: |
+          IMAGE_TAG="app-${{ github.event.inputs.timestamp }}"
+          echo "Pulling image: $IMAGE_TAG from ECR..."
+          docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/your-repo-name:$IMAGE_TAG
